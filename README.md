@@ -1,6 +1,6 @@
-# Mafs
+# Mafs React Native
 
-Mafs is a set of opinionated React components for creating math visualizations.
+Mafs is a set of opinionated React Native components for creating math visualizations.
 
 [Visit the docs →](https://mafs.dev)
 
