@@ -14,6 +14,7 @@ module.exports = {
     "react/prop-types": "off",
     "react/no-unescaped-entities": "off",
     "no-console": "error",
+    "no-unused-vars": "warn"
   },
   overrides: [
     {
