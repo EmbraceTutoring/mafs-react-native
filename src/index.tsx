@@ -1,4 +1,4 @@
-"use client"
+// "use client"
 
 export { Mafs } from "./view/Mafs"
 export type { MafsProps } from "./view/Mafs"
@@ -70,4 +70,5 @@ export { usePaneContext } from "./context/PaneContext"
 
 export { Debug } from "./debug"
 
-export { LaTeX } from "./display/LaTeX"
+// TODO: Re-enable LaTeX when it's ready
+// export { LaTeX } from "./display/LaTeX.tsx"

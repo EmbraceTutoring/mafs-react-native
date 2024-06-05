@@ -3,10 +3,10 @@ import { vec } from "../vec"
 import { useTransformContext } from "../context/TransformContext"
 import { Theme } from "./Theme"
 import {
-  G as SVGG,
+  G as SVGGroup,
   Circle as SVGCircle,
   CommonPathProps,
-  GProps,
+  GProps as SVGGroupProps,
 } from "react-native-svg"
 
 export interface MovablePointDisplayProps {
@@ -17,7 +17,7 @@ export interface MovablePointDisplayProps {
 }
 
 // FIXME: Is the ref type correct?
-export const MovablePointDisplay = React.forwardRef<SVGG<GProps>, MovablePointDisplayProps>(
+export const MovablePointDisplay = React.forwardRef<SVGGroup<SVGGroupProps>, MovablePointDisplayProps>(
   (props: MovablePointDisplayProps, ref) => {
     const { color = Theme.pink, ringRadiusPx = 15, dragging, point } = props
 
@@ -31,7 +31,7 @@ export const MovablePointDisplay = React.forwardRef<SVGG<GProps>, MovablePointDi
     const [xPx, yPx] = vec.transform(point, combinedTransform)
 
     return (
-      <SVGG
+      <SVGGroup
         ref={ref}
         // style={
         //   {
@@ -76,7 +76,7 @@ export const MovablePointDisplay = React.forwardRef<SVGG<GProps>, MovablePointDi
           cx={xPx}
           cy={yPx}
         />
-      </SVGG>
+      </SVGGroup>
     )
   },
 )

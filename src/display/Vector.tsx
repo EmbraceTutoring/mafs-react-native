@@ -4,13 +4,21 @@ import { Theme } from "./Theme"
 import { vec } from "../vec"
 import { useTransformContext } from "../context/TransformContext"
 
+import {
+  Defs as SVGDefs,
+  Marker as SVGMarker,
+  Line as SVGLine,
+  LineProps as SVGLineProps,
+  Path as SVGPath
+} from "react-native-svg";
+
 // This is sort of a hack—every SVG pattern on a page needs a unique ID, otherwise they conflict.
 let incrementer = 0
 
 export interface VectorProps extends Stroked {
   tail?: vec.Vector2
   tip: vec.Vector2
-  svgLineProps?: React.SVGProps<SVGLineElement>
+  svgLineProps?: SVGLineProps
 }
 
 export function Vector({
@@ -32,12 +40,23 @@ export function Vector({
 
   return (
     <>
-      <defs>
-        <marker id={id} markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
-          <path d="M 0 0 L 8 4 L 0 8 z" fill={color || "var(--mafs-fg)"} strokeWidth={0} />
-        </marker>
-      </defs>
-      <line
+      <SVGDefs>
+        <SVGMarker
+          id={id}
+          markerWidth="8"
+          markerHeight="8"
+          refX="8"
+          refY="4"
+          orient="auto"
+        >
+          <SVGPath
+            d="M 0 0 L 8 4 L 0 8 z"
+            fill={color || Theme.foreground}
+            strokeWidth={0}
+          />
+        </SVGMarker>
+      </SVGDefs>
+      <SVGLine
         x1={pixelTail[0]}
         y1={pixelTail[1]}
         x2={pixelTip[0]}
@@ -45,14 +64,19 @@ export function Vector({
         strokeWidth={weight}
         markerEnd={`url(#${id})`}
         {...svgLineProps}
-        style={{
-          stroke: color || "var(--mafs-fg)",
-          strokeDasharray: style === "dashed" ? "var(--mafs-line-stroke-dash-style)" : undefined,
-          fill: color,
-          strokeOpacity: opacity,
-          ...(svgLineProps?.style || {}),
-          vectorEffect: "non-scaling-stroke",
-        }}
+        stroke={color || Theme.foreground}
+        strokeDasharray={style === "dashed" ? Theme.mafsLineStrokeDashStyle : undefined}
+        fill={color}
+        strokeOpacity={opacity}
+        vectorEffect="non-scaling-stroke"
+        // style={{
+        //   stroke: color || "var(--mafs-fg)",
+        //   strokeDasharray: style === "dashed" ? "var(--mafs-line-stroke-dash-style)" : undefined,
+        //   fill: color,
+        //   strokeOpacity: opacity,
+        //   ...(svgLineProps?.style || {}),
+        //   vectorEffect: "non-scaling-stroke",
+        // }}
       />
     </>
   )

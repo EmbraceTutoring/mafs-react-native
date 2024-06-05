@@ -2,6 +2,10 @@ import * as React from "react"
 import { vec } from "../vec"
 import { TransformContext, useTransformContext } from "../context/TransformContext"
 
+import {
+  G as SVGGroup
+} from "react-native-svg";
+
 export type TransformProps = React.PropsWithChildren<{
   matrix?: vec.Matrix
   translate?: vec.Vector2
@@ -45,9 +49,12 @@ export function Transform(props: TransformProps) {
 
   return (
     <TransformContext.Provider value={{ userTransform: newUserTransform, viewTransform }}>
-      <g style={{ "--mafs-user-transform": vec.toCSS(newUserTransform) } as React.CSSProperties}>
+      <SVGGroup
+        // style={{ "--mafs-user-transform": vec.toCSS(newUserTransform) } as React.CSSProperties}
+        // mafs-user-transform is only used here and in Mafs.tsx. It's not clear if it's necessary.
+      >
         {children}
-      </g>
+      </SVGGroup>
     </TransformContext.Provider>
   )
 }

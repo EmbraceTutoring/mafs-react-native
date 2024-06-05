@@ -2,6 +2,12 @@ import * as React from "react"
 // import { Text as RNText } from "react-native";
 import { vec } from "../vec"
 import { useTransformContext } from "../context/TransformContext"
+import { 
+  CommonPathProps,
+  Text as SVGText,
+  TextProps as SVGTextProps,
+} from "react-native-svg"
+import { Theme } from "./Theme"
 
 export type CardinalDirection = "n" | "ne" | "e" | "se" | "s" | "sw" | "w" | "nw"
 
@@ -12,7 +18,7 @@ export type TextProps = React.PropsWithChildren<{
   attachDistance?: number
   size?: number
   color?: string
-  svgTextProps?: React.SVGAttributes<SVGTextElement>
+  svgTextProps?: SVGTextProps
 }>
 
 export function Text({
@@ -28,7 +34,7 @@ export function Text({
   const { viewTransform: pixelMatrix, userTransform: transformContext } = useTransformContext()
 
   let xOffset = 0
-  let textAnchor: React.SVGProps<SVGTextElement>["textAnchor"] = "middle"
+  let textAnchor: SVGTextProps["textAnchor"] = "middle"
   if (attach?.includes("w")) {
     textAnchor = "end"
     xOffset = -1
@@ -38,12 +44,12 @@ export function Text({
   }
 
   let yOffset = 0
-  let dominantBaseline: React.SVGProps<SVGTextElement>["dominantBaseline"] = "middle"
+  let alignmentBaseline: SVGTextProps["alignmentBaseline"] = "middle"
   if (attach?.includes("n")) {
-    dominantBaseline = "baseline"
+    alignmentBaseline = "baseline"
     yOffset = 1
   } else if (attach?.includes("s")) {
-    dominantBaseline = "hanging"
+    alignmentBaseline = "hanging"
     yOffset = -1
   }
 
@@ -55,22 +61,38 @@ export function Text({
   const center = vec.transform([x, y], vec.matrixMult(pixelMatrix, transformContext))
 
   return (
-    <text
+    <SVGText
       x={center[0] + pixelX}
       y={center[1] + pixelY}
       fontSize={size}
-      dominantBaseline={dominantBaseline}
+      // dominantBaseline={dominantBaseline} // not supported
+      alignmentBaseline={alignmentBaseline} // FIXME: is this the same thing?
       textAnchor={textAnchor}
-      style={{
-        fill: color || "var(--mafs-fg)",
-        vectorEffect: "non-scaling-stroke",
-      }}
-      className="mafs-shadow"
+      fill={color || Theme.foreground}
+      vectorEffect="non-scaling-stroke"
+      // style={{
+      //   fill: color || "var(--mafs-fg)",
+      //   vectorEffect: "non-scaling-stroke",
+      // }}
+      // className="mafs-shadow"
+      {...mafsShadowStyles()}
       {...svgTextProps}
     >
       {children}
-    </text>
+    </SVGText>
   )
+}
+
+export const mafsShadowStyles = () => {
+  const styles: Partial<CommonPathProps> = {
+    // paintOrder: "stroke", // not supported
+    strokeWidth: 3,
+    stroke: Theme.background,
+    strokeOpacity: 0.75,
+    strokeLinejoin: "round"
+  }
+
+  return styles;
 }
 
 Text.displayName = "Text"

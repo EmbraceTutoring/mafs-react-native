@@ -308,7 +308,8 @@ function MafsCanvas({
                 touchAction: pan ? "none" : "auto",
                 ...({
                   "--mafs-view-transform": viewTransformCSS,
-                  "--mafs-user-transform": "translate(0, 0)",
+                  // "--mafs-user-transform": "translate(0, 0)",
+                  // --mafs-user-transform is only used here and in Transform.tsx.
                 } as React.CSSProperties),
               }}
             >
