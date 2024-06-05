@@ -1,14 +1,14 @@
-import * as React from "react"
 import { useTransformContext } from "../context/TransformContext"
 import { Theme } from "./Theme"
 import { vec } from "../vec"
+import { Circle as SVGCircle, CircleProps as SVGCircleProps } from "react-native-svg";
 
 export interface PointProps {
   x: number
   y: number
   color?: string
   opacity?: number
-  svgCircleProps?: React.SVGProps<SVGCircleElement>
+  svgCircleProps?: SVGCircleProps
 }
 
 export function Point({
@@ -23,12 +23,14 @@ export function Point({
   const [cx, cy] = vec.transform([x, y], vec.matrixMult(pixelMatrix, transform))
 
   return (
-    <circle
+    <SVGCircle
       cx={cx}
       cy={cy}
       r={6}
+      opacity={opacity}
+      fill={color}
       {...svgCircleProps}
-      style={{ fill: color, opacity, ...svgCircleProps.style }}
+    // style={{ fill: color, opacity, ...svgCircleProps.style }}
     />
   )
 }

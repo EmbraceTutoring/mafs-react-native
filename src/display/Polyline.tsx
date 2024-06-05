@@ -1,14 +1,14 @@
-import * as React from "react"
 import { PolyBase, PolyBaseProps } from "./PolyBase"
+import { Polyline as SVGPolyline, PolylineProps as SVGPolylineProps } from "react-native-svg"
 
 export interface PolylineProps extends PolyBaseProps {
-  svgPolylineProps?: React.SVGProps<SVGPolylineElement>
+  svgPolylineProps?: SVGPolylineProps
 }
 
 export function Polyline({ fillOpacity = 0, svgPolylineProps, ...otherProps }: PolylineProps) {
   return (
     <PolyBase
-      element="polyline"
+      element={SVGPolyline}
       fillOpacity={fillOpacity}
       svgPolyProps={svgPolylineProps}
       {...otherProps}

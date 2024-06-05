@@ -2,6 +2,12 @@ import * as React from "react"
 import { vec } from "../vec"
 import { useTransformContext } from "../context/TransformContext"
 import { Theme } from "./Theme"
+import {
+  G as SVGG,
+  Circle as SVGCircle,
+  CommonPathProps,
+  GProps,
+} from "react-native-svg"
 
 export interface MovablePointDisplayProps {
   color?: string
@@ -10,7 +16,8 @@ export interface MovablePointDisplayProps {
   point: vec.Vector2
 }
 
-export const MovablePointDisplay = React.forwardRef<SVGGElement, MovablePointDisplayProps>(
+// FIXME: Is the ref type correct?
+export const MovablePointDisplay = React.forwardRef<SVGG<GProps>, MovablePointDisplayProps>(
   (props: MovablePointDisplayProps, ref) => {
     const { color = Theme.pink, ringRadiusPx = 15, dragging, point } = props
 
@@ -24,29 +31,87 @@ export const MovablePointDisplay = React.forwardRef<SVGGElement, MovablePointDis
     const [xPx, yPx] = vec.transform(point, combinedTransform)
 
     return (
-      <g
+      <SVGG
         ref={ref}
-        style={
-          {
-            "--movable-point-color": color,
-            "--movable-point-ring-size": `${ringRadiusPx}px`,
-          } as React.CSSProperties
-        }
-        className={`mafs-movable-point ${dragging ? "mafs-movable-point-dragging" : ""}`}
-        tabIndex={0}
+        // style={
+        //   {
+        //     "--movable-point-color": color,
+        //     "--movable-point-ring-size": `${ringRadiusPx}px`,
+        //   } as React.CSSProperties
+        // }
+        // className={`mafs-movable-point ${dragging ? "mafs-movable-point-dragging" : ""}`}
+
+        {...dragging && {
+          // i think we can assume that if the user is dragging,
+          // the element is :focus'd as well.
+          r: `${ringRadiusPx}px`,
+          ...mafsMovablePointFocusStyles(color),
+        }}
+        // tabIndex={0} // not supported
       >
-        <circle className="mafs-movable-point-hitbox" r={30} cx={xPx} cy={yPx}></circle>
-        <circle
-          className="mafs-movable-point-focus"
+        <SVGCircle
+          fill="transparent"
+          r={30}
+          cx={xPx}
+          cy={yPx}
+        />
+        <SVGCircle
+          // className="mafs-movable-point-focus"
+          {...mafsMovablePointFocusStyles(color)}
           r={ringRadiusPx + 1}
           cx={xPx}
           cy={yPx}
-        ></circle>
-        <circle className="mafs-movable-point-ring" r={ringRadiusPx} cx={xPx} cy={yPx}></circle>
-        <circle className="mafs-movable-point-point" r={6} cx={xPx} cy={yPx}></circle>
-      </g>
+        />
+        <SVGCircle
+          // className="mafs-movable-point-ring"
+          {...mafsMovablePointRingStyles(color)}
+          r={ringRadiusPx}
+          cx={xPx}
+          cy={yPx}
+        />
+        <SVGCircle
+          // className="mafs-movable-point-point"
+          {...mafsMovablePointPointStyles(color)}
+          r={6}
+          cx={xPx}
+          cy={yPx}
+        />
+      </SVGG>
     )
   },
 )
+
+export const mafsMovablePointFocusStyles = (color: string) => {
+  const styles: Partial<CommonPathProps> = {
+    stroke: color,
+    strokeWidth: 2,
+    strokeOpacity: 0.5,
+    fill: "none",
+    // transition: stroke-opacity 0.2s ease; // not supported
+  }
+
+  return styles;
+}
+
+export const mafsMovablePointRingStyles = (color: string) => {
+  const styles: Partial<CommonPathProps> = {
+    fill: color,
+    fillOpacity: 0.25,
+    stroke: "none",
+    //  transition: r 0.2s ease; // not supported
+  }
+
+  return styles;
+}
+
+export const mafsMovablePointPointStyles = (color: string) => {
+  const styles: Partial<CommonPathProps> = {
+    fill: color,
+    // transition: r 0.2s ease; // not supported
+    // TODO: maybe we need to use react-native-reanimated
+  }
+
+  return styles;
+}
 
 MovablePointDisplay.displayName = "MovablePointDisplay"

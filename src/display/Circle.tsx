@@ -1,12 +1,12 @@
 import { Filled } from "./Theme"
 import { Ellipse } from "./Ellipse"
 import { vec } from "../vec"
-import type * as React from "react"
+import type { EllipseProps as SVGEllipseProps } from "react-native-svg"
 
 export interface CircleProps extends Filled {
   center: vec.Vector2
   radius: number
-  svgEllipseProps?: React.SVGProps<SVGEllipseElement>
+  svgEllipseProps?: SVGEllipseProps
 }
 
 export function Circle({ radius, ...rest }: CircleProps) {

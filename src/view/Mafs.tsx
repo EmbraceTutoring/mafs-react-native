@@ -3,14 +3,14 @@ import CoordinateContext, { CoordinateContextShape } from "../context/Coordinate
 import PaneManager from "../context/PaneContext"
 import useResizeObserver from "use-resize-observer"
 
-import { useGesture } from "@use-gesture/react"
+// import { useGesture } from "@use-gesture/react"
 import { round } from "../math"
 import { vec } from "../vec"
 import { TransformContext } from "../context/TransformContext"
 import { SpanContext } from "../context/SpanContext"
 import invariant from "tiny-invariant"
 import { useCamera } from "../gestures/useCamera"
-import { useWheelEnabler } from "../gestures/useWheelEnabler"
+// import { useWheelEnabler } from "../gestures/useWheelEnabler"
 import { TestContext } from "../context/TestContext"
 
 export type MafsProps = React.PropsWithChildren<{
@@ -41,14 +41,8 @@ export type MafsProps = React.PropsWithChildren<{
   preserveAspectRatio?: "contain" | false
 
   /** Called when the view is clicked on, and passed the point where it was clicked. */
+  // eslint-disable-next-line no-unused-vars
   onClick?: (point: vec.Vector2, event: MouseEvent) => void
-
-  /**
-   * @deprecated this was previously used to avoid rendering Mafs on the server
-   * side. However, Mafs now avoids rendering at all until it is mounted, so
-   * this prop is now ignored.
-   */
-  ssr?: boolean
 }>
 
 export function Mafs({
@@ -59,7 +53,6 @@ export function Mafs({
   viewBox = { x: [-3, 3], y: [-3, 3] },
   preserveAspectRatio = "contain",
   children,
-  ssr = false,
   onClick = undefined,
 }: MafsProps) {
   const testContext = React.useContext(TestContext)
@@ -68,7 +61,7 @@ export function Mafs({
   const desiredCssWidth = propWidth === "auto" ? "100%" : `${propWidth}px`
 
   const rootRef = React.useRef<HTMLDivElement>(null)
-  const { width = propWidth === "auto" ? (ssr ? 500 : 0) : propWidth } =
+  const { width = propWidth === "auto" ? 0 : propWidth } =
     useResizeObserver<HTMLDivElement>({
       ref: propWidth === "auto" ? rootRef : null,
     })
@@ -90,7 +83,6 @@ export function Mafs({
           zoom={zoom}
           viewBox={viewBox}
           preserveAspectRatio={preserveAspectRatio}
-          ssr={ssr}
           onClick={onClick}
         >
           {children}
@@ -105,20 +97,20 @@ type MafsCanvasProps = {
   height: number
   desiredCssWidth: string
   rootRef: React.RefObject<HTMLDivElement>
-} & Required<Pick<MafsProps, "pan" | "zoom" | "viewBox" | "preserveAspectRatio" | "ssr">> &
+} & Required<Pick<MafsProps, "pan" | "zoom" | "viewBox" | "preserveAspectRatio">> &
   Pick<MafsProps, "children" | "onClick">
 
 function MafsCanvas({
   width,
   height,
   desiredCssWidth,
-  rootRef,
+  // rootRef,
   pan,
   zoom,
   viewBox,
   preserveAspectRatio,
   children,
-  onClick,
+  // onClick,
 }: MafsCanvasProps) {
   let minZoom = 1
   let maxZoom = 1
@@ -158,8 +150,9 @@ function MafsCanvas({
     }
   }
 
-  ;[xMin, yMin] = vec.transform([xMin, yMin], camera.matrix)
-  ;[xMax, yMax] = vec.transform([xMax, yMax], camera.matrix)
+  // interesting. "defensive semicolons" are a thing.
+  ;[xMin, yMin] = vec.transform([xMin, yMin], camera.matrix);
+  ;[xMax, yMax] = vec.transform([xMax, yMax], camera.matrix);
 
   const xSpan = xMax - xMin
   const ySpan = yMax - yMin
@@ -173,121 +166,123 @@ function MafsCanvas({
   const viewBoxX = round((xMin / (xMax - xMin)) * width, 10)
   const viewBoxY = round((yMax / (yMin - yMax)) * height, 10)
 
-  const inverseViewTransform = vec.matrixInvert(viewTransform)
+  // const inverseViewTransform = vec.matrixInvert(viewTransform)
 
-  const pickupOrigin = React.useRef<vec.Vector2>([0, 0])
-  const pickupPoint = React.useRef<vec.Vector2>([0, 0])
+  // const pickupOrigin = React.useRef<vec.Vector2>([0, 0])
+  // const pickupPoint = React.useRef<vec.Vector2>([0, 0])
 
-  function mapGesturePoint(point: vec.Vector2): vec.Vector2 {
-    const el = rootRef.current
-    invariant(el, "SVG is not mounted")
-    invariant(inverseViewTransform, "View transform is not invertible")
+  // function mapGesturePoint(point: vec.Vector2): vec.Vector2 {
+  //   const el = rootRef.current
+  //   invariant(el, "SVG is not mounted")
+  //   invariant(inverseViewTransform, "View transform is not invertible")
 
-    const rect = el.getBoundingClientRect()
-    return vec.transform(
-      [point[0] - rect.left + viewBoxX, point[1] - rect.top + viewBoxY],
-      inverseViewTransform,
-    )
-  }
+  //   const rect = el.getBoundingClientRect()
+  //   return vec.transform(
+  //     [point[0] - rect.left + viewBoxX, point[1] - rect.top + viewBoxY],
+  //     inverseViewTransform,
+  //   )
+  // }
 
-  const wheelEnabler = useWheelEnabler(!!zoom)
+  // const wheelEnabler = useWheelEnabler(!!zoom)
 
-  const justDragged = React.useRef(false)
+  // const justDragged = React.useRef(false)
 
-  useGesture(
-    {
-      onDrag: ({ movement, first, event, type, pinching, memo = [0, 0], last }) => {
-        if (pinching) return movement
+  // TODO: https://docs.swmansion.com/react-native-gesture-handler/docs/
+  // https://github.com/orgs/EmbraceTutoring/projects/1?pane=issue&itemId=65644268
+  // useGesture(
+  //   {
+  //     onDrag: ({ movement, first, event, type, pinching, memo = [0, 0], last }) => {
+  //       if (pinching) return movement
 
-        if (first) camera.setBase()
-        const [mx, my] = vec.sub(movement, memo)
+  //       if (first) camera.setBase()
+  //       const [mx, my] = vec.sub(movement, memo)
 
-        camera.move({ pan: [(-mx / width) * xSpan, (my / height) * ySpan] })
+  //       camera.move({ pan: [(-mx / width) * xSpan, (my / height) * ySpan] })
 
-        const keyboard = type.includes("key")
-        if (keyboard) event?.preventDefault()
+  //       const keyboard = type.includes("key")
+  //       if (keyboard) event?.preventDefault()
 
-        // Some minor jank so that onClick doesn't fire on drag.
-        if (last) {
-          justDragged.current = true
-          setTimeout(() => (justDragged.current = false), 10)
-        }
-        return !keyboard && first ? movement : memo
-      },
-      onPinch: ({ first, movement: [scale], origin, event, last }) => {
-        if (!event.currentTarget || !inverseViewTransform) return
+  //       // Some minor jank so that onClick doesn't fire on drag.
+  //       if (last) {
+  //         justDragged.current = true
+  //         setTimeout(() => (justDragged.current = false), 10)
+  //       }
+  //       return !keyboard && first ? movement : memo
+  //     },
+  //     onPinch: ({ first, movement: [scale], origin, event, last }) => {
+  //       if (!event.currentTarget || !inverseViewTransform) return
 
-        if (first) {
-          camera.setBase()
-          pickupOrigin.current = origin
-          pickupPoint.current = pan
-            ? mapGesturePoint(origin)
-            : [(xMin + xMax) / 2, (yMin + yMax) / 2]
-        }
+  //       if (first) {
+  //         camera.setBase()
+  //         pickupOrigin.current = origin
+  //         pickupPoint.current = pan
+  //           ? mapGesturePoint(origin)
+  //           : [(xMin + xMax) / 2, (yMin + yMax) / 2]
+  //       }
 
-        let offset: vec.Vector2 = [0, 0]
-        if (pan) {
-          offset = vec.transform(vec.sub(origin, pickupOrigin.current), inverseViewTransform)
-        }
-        camera.move({ zoom: { at: pickupPoint.current, scale }, pan: vec.scale(offset, -1) })
+  //       let offset: vec.Vector2 = [0, 0]
+  //       if (pan) {
+  //         offset = vec.transform(vec.sub(origin, pickupOrigin.current), inverseViewTransform)
+  //       }
+  //       camera.move({ zoom: { at: pickupPoint.current, scale }, pan: vec.scale(offset, -1) })
 
-        // Commit the camera just in case we are transitioning into a drag
-        // gesture (such as by lifting just one finger after pinching).
-        if (last) camera.setBase()
-      },
-      onWheel: ({ pinching, event, delta: [, scroll] }) => {
-        if (pinching) return
+  //       // Commit the camera just in case we are transitioning into a drag
+  //       // gesture (such as by lifting just one finger after pinching).
+  //       if (last) camera.setBase()
+  //     },
+  //     onWheel: ({ pinching, event, delta: [, scroll] }) => {
+  //       if (pinching) return
 
-        // Simple sigmoid function to flatten extreme scrolling
-        const scale = 2 / (1 + Math.exp(-scroll / 300))
+  //       // Simple sigmoid function to flatten extreme scrolling
+  //       const scale = 2 / (1 + Math.exp(-scroll / 300))
 
-        const point = mapGesturePoint([event.clientX, event.clientY])
-        camera.setBase()
-        camera.move({ zoom: { at: point, scale: 1 / scale } })
-      },
-      onKeyDown: ({ event }) => {
-        // Avoid messing with browser zoom
-        if (event.metaKey) return
+  //       const point = mapGesturePoint([event.clientX, event.clientY])
+  //       camera.setBase()
+  //       camera.move({ zoom: { at: point, scale: 1 / scale } })
+  //     },
+  //     onKeyDown: ({ event }) => {
+  //       // Avoid messing with browser zoom
+  //       if (event.metaKey) return
 
-        const base = { Equal: 1, Minus: -1 }[event.code] ?? 0
-        if (!base) return
+  //       const base = { Equal: 1, Minus: -1 }[event.code] ?? 0
+  //       if (!base) return
 
-        let multiplier = 0.1
-        if (event.altKey || event.metaKey) multiplier = 0.01
-        if (event.shiftKey) multiplier = 0.3
+  //       let multiplier = 0.1
+  //       if (event.altKey || event.metaKey) multiplier = 0.01
+  //       if (event.shiftKey) multiplier = 0.3
 
-        const scale = 1 + base * multiplier
-        const center: vec.Vector2 = [(xMax + xMin) / 2, (yMax + yMin) / 2]
+  //       const scale = 1 + base * multiplier
+  //       const center: vec.Vector2 = [(xMax + xMin) / 2, (yMax + yMin) / 2]
 
-        camera.setBase()
-        camera.move({ zoom: { at: center, scale } })
-      },
-      onMouseMove: () => {
-        wheelEnabler.handleMouseMove()
-      },
-      onClick: ({ event }) => {
-        if (!onClick || !rootRef.current || justDragged.current) return
+  //       camera.setBase()
+  //       camera.move({ zoom: { at: center, scale } })
+  //     },
+  //     onMouseMove: () => {
+  //       wheelEnabler.handleMouseMove()
+  //     },
+  //     onClick: ({ event }) => {
+  //       if (!onClick || !rootRef.current || justDragged.current) return
 
-        const box = rootRef.current.getBoundingClientRect()
-        const pxX = event.clientX - box.left
-        const pxY = box.bottom - event.clientY
-        const x = (pxX / width) * xSpan + xMin
-        const y = (pxY / height) * ySpan + yMin
+  //       const box = rootRef.current.getBoundingClientRect()
+  //       const pxX = event.clientX - box.left
+  //       const pxY = box.bottom - event.clientY
+  //       const x = (pxX / width) * xSpan + xMin
+  //       const y = (pxY / height) * ySpan + yMin
 
-        onClick([x, y], event)
-      },
-    },
-    {
-      drag: { enabled: pan, eventOptions: { passive: false }, threshold: 1 },
-      pinch: { enabled: !!zoom, eventOptions: { passive: false } },
-      wheel: {
-        enabled: wheelEnabler.wheelEnabled,
-        preventDefault: true,
-        eventOptions: { passive: false },
-      },
-      target: rootRef,
-    },
-  )
+  //       onClick([x, y], event)
+  //     },
+  //   },
+  //   {
+  //     drag: { enabled: pan, eventOptions: { passive: false }, threshold: 1 },
+  //     pinch: { enabled: !!zoom, eventOptions: { passive: false } },
+  //     wheel: {
+  //       enabled: wheelEnabler.wheelEnabled,
+  //       preventDefault: true,
+  //       eventOptions: { passive: false },
+  //     },
+  //     target: rootRef,
+  //   },
+  // )
 
   const viewTransformCSS = vec.toCSS(viewTransform)
 

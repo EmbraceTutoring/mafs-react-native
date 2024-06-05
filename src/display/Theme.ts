@@ -1,16 +1,18 @@
 export const Theme = {
-  foreground: "var(--mafs-fg)",
-  background: "var(--mafs-bg)",
+  foreground: "black",
+  background: "white",
 
-  red: "var(--mafs-red)",
-  orange: "var(--mafs-orange)",
-  green: "var(--mafs-green)",
-  blue: "var(--mafs-blue)",
-  indigo: "var(--mafs-indigo)",
-  violet: "var(--mafs-violet)",
-  pink: "var(--mafs-pink)",
-  yellow: "var(--mafs-yellow)",
-}
+  red: "#f11d0e",
+  orange: "#f14e0e",
+  yellow: "#ffe44a",
+  green: "#15e272",
+  blue: "#58a6ff",
+  indigo: "#7c58ff",
+  violet: "#ae58ff",
+  pink: "#ee00ab",
+
+  mafsLineStrokeDashStyle: [4, 3]
+};
 
 export interface Filled {
   color?: string
