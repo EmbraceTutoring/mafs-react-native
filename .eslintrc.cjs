@@ -1,3 +1,4 @@
+/* eslint-env node */
 module.exports = {
   root: true,
   parser: "@typescript-eslint/parser",
@@ -14,7 +15,8 @@ module.exports = {
     "react/prop-types": "off",
     "react/no-unescaped-entities": "off",
     "no-console": "error",
-    "no-unused-vars": "warn"
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "warn"
   },
   overrides: [
     {
