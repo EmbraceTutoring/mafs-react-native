@@ -1,7 +1,9 @@
 import * as React from "react"
 import CoordinateContext, { CoordinateContextShape } from "../context/CoordinateContext"
 import PaneManager from "../context/PaneContext"
-import useResizeObserver from "use-resize-observer"
+// import useResizeObserver from "use-resize-observer"
+import { Svg } from "react-native-svg";
+import { StyleSheet, View } from "react-native";
 
 // import { useGesture } from "@use-gesture/react"
 import { round } from "../math"
@@ -12,9 +14,10 @@ import invariant from "tiny-invariant"
 import { useCamera } from "../gestures/useCamera"
 // import { useWheelEnabler } from "../gestures/useWheelEnabler"
 import { TestContext } from "../context/TestContext"
+import { Theme } from "../display/Theme";
 
 export type MafsProps = React.PropsWithChildren<{
-  width?: number | "auto"
+  width: number /* | "auto" */ // STUB: re-add "auto" and make undefined-able
   height?: number
 
   /** Whether to enable panning with the mouse and keyboard */
@@ -42,75 +45,77 @@ export type MafsProps = React.PropsWithChildren<{
 
   /** Called when the view is clicked on, and passed the point where it was clicked. */
   // eslint-disable-next-line no-unused-vars
-  onClick?: (point: vec.Vector2, event: MouseEvent) => void
+  onPress?: (point: vec.Vector2, event: MouseEvent) => void
 }>
 
 export function Mafs({
-  width: propWidth = "auto",
+  width: propWidth,
   height: propHeight = 500,
   pan = true,
   zoom = false,
   viewBox = { x: [-3, 3], y: [-3, 3] },
   preserveAspectRatio = "contain",
   children,
-  onClick = undefined,
+  onPress = undefined,
 }: MafsProps) {
   const testContext = React.useContext(TestContext)
   const height = testContext.overrideHeight ?? propHeight
 
-  const desiredCssWidth = propWidth === "auto" ? "100%" : `${propWidth}px`
+  // const desiredCssWidth = propWidth === "auto" ? "100%" : propWidth;
 
-  const rootRef = React.useRef<HTMLDivElement>(null)
-  const { width = propWidth === "auto" ? 0 : propWidth } =
-    useResizeObserver<HTMLDivElement>({
-      ref: propWidth === "auto" ? rootRef : null,
-    })
+  const rootRef = React.useRef<View>(null)
+  // const { width = propWidth === "auto" ? 0 : propWidth } =
+  //   useResizeObserver<HTMLDivElement>({
+  //     ref: propWidth === "auto" ? rootRef : null,
+  //   })
 
   return (
-    <div
-      className="MafsView"
-      style={{ width: desiredCssWidth, height }}
-      tabIndex={pan || zoom ? 0 : -1}
+    <View
+      // className="MafsView"
+      style={{
+        width: propWidth, // STUB:
+        height,
+        ...MafsStyles.mafsView
+      }}
+      // tabIndex={pan || zoom ? 0 : -1}
       ref={rootRef}
     >
-      {width > 0 && (
-        <MafsCanvas
-          width={width}
-          height={height}
-          desiredCssWidth={desiredCssWidth}
-          rootRef={rootRef}
-          pan={pan}
-          zoom={zoom}
-          viewBox={viewBox}
-          preserveAspectRatio={preserveAspectRatio}
-          onClick={onClick}
-        >
-          {children}
-        </MafsCanvas>
-      )}
-    </div>
+      <MafsCanvas
+        width={propWidth}
+        height={height}
+        // desiredCssWidth={propWidth} // STUB:
+        rootRef={rootRef}
+        pan={pan}
+        zoom={zoom}
+        viewBox={viewBox}
+        preserveAspectRatio={preserveAspectRatio}
+        onPress={onPress}
+      >
+        {children}
+      </MafsCanvas>
+    </View>
   )
 }
 
 type MafsCanvasProps = {
   width: number
   height: number
-  desiredCssWidth: string
-  rootRef: React.RefObject<HTMLDivElement>
+  // desiredCssWidth: string // STUB:
+  rootRef: React.RefObject<View>
 } & Required<Pick<MafsProps, "pan" | "zoom" | "viewBox" | "preserveAspectRatio">> &
-  Pick<MafsProps, "children" | "onClick">
+  Pick<MafsProps, "children" | "onPress">
 
 function MafsCanvas({
   width,
   height,
-  desiredCssWidth,
+  // desiredCssWidth,
   // rootRef,
-  pan,
+  pan, // TODO: Implement panning
   zoom,
   viewBox,
   preserveAspectRatio,
   children,
-  // onClick,
+  onPress,
 }: MafsCanvasProps) {
   let minZoom = 1
   let maxZoom = 1
@@ -284,7 +289,7 @@ function MafsCanvas({
   //   },
   // )
 
-  const viewTransformCSS = vec.toCSS(viewTransform)
+  // const viewTransformCSS = vec.toCSS(viewTransform)
 
   const coordinateContext = React.useMemo<CoordinateContextShape>(
     () => ({ xMin, xMax, yMin, yMax, height, width }),
@@ -298,23 +303,23 @@ function MafsCanvas({
           value={{ userTransform: vec.identity, viewTransform: viewTransform }}
         >
           <PaneManager>
-            <svg
+            <Svg
               width={width}
               height={height}
               viewBox={`${viewBoxX} ${viewBoxY} ${width} ${height}`}
               preserveAspectRatio="xMidYMin"
-              style={{
-                width: desiredCssWidth,
-                touchAction: pan ? "none" : "auto",
-                ...({
-                  "--mafs-view-transform": viewTransformCSS,
-                  // "--mafs-user-transform": "translate(0, 0)",
-                  // --mafs-user-transform is only used here and in Transform.tsx.
-                } as React.CSSProperties),
-              }}
+            // style={{
+            //   // width: desiredCssWidth, // What's the difference between this and the width prop?
+            //   touchAction: pan ? "none" : "auto",
+            //   ...({
+            //     "--mafs-view-transform": viewTransformCSS,
+            //     // "--mafs-user-transform": "translate(0, 0)",
+            //     // --mafs-user-transform is only used here and in Transform.tsx.
+            //   } as React.CSSProperties),
+            // }}
             >
               {children}
-            </svg>
+            </Svg>
           </PaneManager>
         </TransformContext.Provider>
       </SpanContext.Provider>
@@ -323,3 +328,16 @@ function MafsCanvas({
 }
 
 Mafs.displayName = "Mafs"
+
+const MafsStyles = StyleSheet.create({
+  mafsView: {
+    // display: "block", // not supported :monkaS:
+    backgroundColor: Theme.background,
+    overflow: "hidden",
+    userSelect: "none",
+    fontFamily: "inherit", // FIXME: does this work?
+    // fontVariant: "tabular-nums", // FIXME:
+    // touchAction: "none" // not supported
+    // outline: 0 // not supported ?????
+  }
+});
